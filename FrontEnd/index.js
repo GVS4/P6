@@ -36,17 +36,69 @@ const DisplayBtnCategories = async () => {
 };
 DisplayBtnCategories();
 
+//// --------
+
 // Filters works with a click on btn and updates the HTML gallery
+// async function filterWorks() {
+//   const dataArray = await fetchData("works");
+//   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
+
+//   arrayBtn.forEach((btn) =>
+//     btn.addEventListener("click", async () => {
+//       const btnId = +btn.id;
+//       const workFiltered = btnId === 0 ? dataArray : dataArray.filter((e) => btnId === e.categoryId);
+//       insertWorkInHtml(workFiltered);
+//     })
+//   );
+// }
+// filterWorks();
+////-------
+
+// async function filterWorks() {
+//   const dataArray = await fetchData("works");
+//   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
+
+//   arrayBtn.forEach((btn) => {
+//     btn.addEventListener("click", async () => {
+//       const btnId = +btn.id;
+
+//       // Ajouter la classe au bouton cliqué
+//       btn.classList.add("btn-selected");
+
+//       // Enlever la classe des autres boutons
+//       arrayBtn.forEach((otherBtn) => {
+//         if (otherBtn !== btn) {
+//           otherBtn.classList.remove("btn-selected");
+//         }
+//       });
+
+//       const workFiltered = btnId === 0 ? dataArray : dataArray.filter((e) => btnId === e.categoryId);
+//       insertWorkInHtml(workFiltered);
+//     });
+//   });
+// }
+
+// filterWorks();
+
 async function filterWorks() {
   const dataArray = await fetchData("works");
   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
 
-  arrayBtn.forEach((btn) =>
+  arrayBtn.forEach(btn => {
     btn.addEventListener("click", async () => {
       const btnId = +btn.id;
-      const workFiltered = btnId === 0 ? dataArray : dataArray.filter((e) => btnId === e.categoryId);
+
+      btn.classList.add("btn-selected");
+
+      arrayBtn
+        .filter(otherBtn => otherBtn !== btn)
+        .forEach(otherBtn => otherBtn.classList.remove("btn-selected"));
+
+      const workFiltered = btnId === 0 ? dataArray : dataArray.filter(e => btnId === e.categoryId);
       insertWorkInHtml(workFiltered);
-    })
-  );
+    });
+  });
 }
+
 filterWorks();
+
