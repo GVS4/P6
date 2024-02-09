@@ -144,6 +144,21 @@ main {
   display: flex;
   flex-direction: column;
   flex: 1;
+  width: 100%;
+}
+
+#edition-mode {
+  background: #000;
+  width: 100%;
+  height: 50px;
+  display: flex;
+}
+
+#edition-mode div {
+  color: white;
+  margin: auto auto;
+  width: fit-content;
+  gap: 20px;
 }
 
 header {
@@ -228,7 +243,21 @@ header img {
   margin-bottom: 0.5em;
 }
 #portfolio h2 {
+  display: flex;
   text-align: center;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+#portfolio h2 a {
+  font-family: "Work Sans";
+  font-size: 14px;
+  align-items: center;
+  color: #000;
+}
+
+#portfolio i {
+  margin-right: 5px;
 }
 
 #filter {
@@ -323,7 +352,7 @@ input[type="submit"] {
 
 footer {
   background: white;
-  width:100%;
+  width: 100%;
 }
 
 footer nav ul {
@@ -377,4 +406,51 @@ strong {
 
 .form-error {
   border: solid 1px red;
+}
+
+/* --MODAL-- */
+
+#containerModal {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.3);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background: white;
+  width: 50%;
+  height: 50%;
+  position: relative;
+  border-radius: 20px;
+}
+
+.fa-x {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  cursor: pointer;
+}
+
+#containerModal h2 {
+  color: black;
+  font-size: 26px;
+  font-family: "Work Sans";
+  font-weight: 400;
+}
+
+#containerModal button {
+  padding: 0 50px;
+}
+
+#grey-bar {
+  border-top: 1px solid #b3b3b3;
+  width: 100%;
 }

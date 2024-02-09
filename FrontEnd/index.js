@@ -58,12 +58,61 @@ async function filterWorks() {
 }
 filterWorks();
 
-// If user is loged :
-const loginElement = document.getElementById("login");
+// --IF USER IS LOGGED :
+const ifLogged = () => {
+  const loginElement = document.getElementById("login");
 
-if (localStorage.getItem("logged") === "true") {
-  loginElement.textContent = "Logout";
-  loginElement.addEventListener("click", () => {
-    localStorage.setItem("logged", "false");
+  localStorage.getItem("logged") === "true" &&
+    ((loginElement.textContent = "Logout"),
+    // Add mode édition
+    document
+      .querySelector("header")
+      .insertAdjacentHTML(
+        "beforebegin",
+        '    <div id="edition-mode">\n  <div><a href="#"><i class="fa-regular fa-pen-to-square" style="color: #ffffff;"></i> Mode édition</a></div>\n</div>'
+      ),
+    // Add Modifier
+    document
+      .querySelector("#portfolio h2")
+      .insertAdjacentHTML(
+        "beforeend",
+        '<a><i class="fa-regular fa-pen-to-square" style="color: black"></i> Modifier</a>'
+      ),
+    // Disconnect: Clicking logout
+    loginElement.addEventListener("click", () =>
+      localStorage.setItem("logged", "false")
+    ));
+};
+
+ifLogged();
+
+// --MODAL
+const setModalDisplay = (displayValue) => {
+  document.getElementById("containerModal").style.display = displayValue;
+};
+
+const displayModal = () => {
+  // Mode édition
+  document.querySelector("#edition-mode a").addEventListener("click", () => {
+    setModalDisplay("flex");
   });
-}
+
+  // Modifier
+  document.querySelector("#portfolio a").addEventListener("click", () => {
+    setModalDisplay("flex");
+  });
+
+  // Leave when clicked on X
+  document
+    .querySelector("#containerModal .fa-x")
+    .addEventListener("click", () => {
+      setModalDisplay("none");
+    });
+
+  // Leave when clicked on container
+  document.getElementById("containerModal").addEventListener("click", (e) => {
+    e.target.id === "containerModal" && setModalDisplay("none");
+  });
+};
+
+displayModal();
