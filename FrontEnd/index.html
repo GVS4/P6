@@ -21,7 +21,7 @@
         <ul>
           <li>projets</li>
           <li>contact</li>
-          <li><a href="./login.html">login</a></li>
+          <li><a href="./login.html" id="login">login</a></li>
           <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
         </ul>
       </nav>
@@ -61,8 +61,13 @@
         <form action="#" method="post">
           <label for="name">Nom</label>
           <input type="text" name="name" id="name" class="input-text" />
-          <label for="email">Email</label>
-          <input type="email" name="email" id="email" class="input-text" />
+          <label for="contact-email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="contact-email"
+            class="input-text"
+          />
           <label for="message">Message</label>
           <textarea name="message" id="message" cols="30" rows="10"></textarea>
           <input class="button" type="submit" value="Envoyer" />

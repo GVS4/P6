@@ -1,13 +1,14 @@
 // Fetches works data from the API
-const fetchData = async param => {
+const fetchData = async (param) => {
   try {
     const response = await fetch(`http://localhost:5678/api/${param}`);
-    const result = await response.json();
-    return result;
+    return await response.json();
   } catch (error) {
     console.error(error);
   }
 };
+const arrayAllWorks = fetchData("works").then((result) => result);
+const arrayAllCategories = fetchData("categories").then((result) => result);
 
 // Inserts works into the HTML gallery
 const insertWorkInHtml = async (array) => {
@@ -23,82 +24,46 @@ const insertWorkInHtml = async (array) => {
 };
 
 // Displays all works in the HTML gallery
-const displayWorks = async () => insertWorkInHtml(await fetchData("works"));
+const displayWorks = async () => insertWorkInHtml(await arrayAllWorks);
 displayWorks();
 
-// Displays category buttons and adds "All" as the first option
+// Displays category buttons and adds "Tous" as the first option
 const DisplayBtnCategories = async () => {
-  const dataArray = await fetchData("categories");
-  dataArray.unshift({ id: 0, name: "Tous" });
-  document.getElementById("filter").innerHTML = dataArray
-    .map((e) => `<button class="button" id ="${e.id}">${e.name}</button>`)
+  const array = await arrayAllCategories;
+  array.unshift({ id: 0, name: "Tous" });
+
+  document.getElementById("filter").innerHTML = array
+    .map((e) => `<button class="button" id="${e.id}">${e.name}</button>`)
     .join("");
 };
-DisplayBtnCategories();
 
-//// --------
-
-// Filters works with a click on btn and updates the HTML gallery
-// async function filterWorks() {
-//   const dataArray = await fetchData("works");
-//   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
-
-//   arrayBtn.forEach((btn) =>
-//     btn.addEventListener("click", async () => {
-//       const btnId = +btn.id;
-//       const workFiltered = btnId === 0 ? dataArray : dataArray.filter((e) => btnId === e.categoryId);
-//       insertWorkInHtml(workFiltered);
-//     })
-//   );
-// }
-// filterWorks();
-////-------
-
-// async function filterWorks() {
-//   const dataArray = await fetchData("works");
-//   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
-
-//   arrayBtn.forEach((btn) => {
-//     btn.addEventListener("click", async () => {
-//       const btnId = +btn.id;
-
-//       // Ajouter la classe au bouton cliqué
-//       btn.classList.add("btn-selected");
-
-//       // Enlever la classe des autres boutons
-//       arrayBtn.forEach((otherBtn) => {
-//         if (otherBtn !== btn) {
-//           otherBtn.classList.remove("btn-selected");
-//         }
-//       });
-
-//       const workFiltered = btnId === 0 ? dataArray : dataArray.filter((e) => btnId === e.categoryId);
-//       insertWorkInHtml(workFiltered);
-//     });
-//   });
-// }
-
-// filterWorks();
-
+// filters works based on buttons
 async function filterWorks() {
-  const dataArray = await fetchData("works");
+  await DisplayBtnCategories();
+  const array = await arrayAllWorks;
   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
-
-  arrayBtn.forEach(btn => {
+  arrayBtn.forEach((btn) => {
     btn.addEventListener("click", async () => {
       const btnId = +btn.id;
-
       btn.classList.add("btn-selected");
-
       arrayBtn
-        .filter(otherBtn => otherBtn !== btn)
-        .forEach(otherBtn => otherBtn.classList.remove("btn-selected"));
+        .filter((otherBtn) => otherBtn !== btn)
+        .forEach((otherBtn) => otherBtn.classList.remove("btn-selected"));
 
-      const workFiltered = btnId === 0 ? dataArray : dataArray.filter(e => btnId === e.categoryId);
-      insertWorkInHtml(workFiltered);
+      const worksFiltered =
+        btnId === 0 ? array : array.filter((e) => btnId === e.categoryId);
+      insertWorkInHtml(worksFiltered);
     });
   });
 }
-
 filterWorks();
 
+// If user is loged :
+const loginElement = document.getElementById("login");
+
+if (localStorage.getItem("logged") === "true") {
+  loginElement.textContent = "Logout";
+  loginElement.addEventListener("click", () => {
+    localStorage.setItem("logged", "false");
+  });
+}
