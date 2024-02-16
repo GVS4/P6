@@ -336,6 +336,7 @@ header img {
 }
 label {
   margin: 2em 0 1em 0;
+  font-weight: 700;
 }
 #contact textarea {
   border: none;
@@ -348,6 +349,7 @@ input[type="submit"] {
   margin: 2em auto;
   background-color: #1d6154;
   color: white;
+  cursor: pointer;
 }
 
 footer {
@@ -420,22 +422,16 @@ strong {
   background-color: rgba(128, 128, 128, 0.3);
 }
 
-.modal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-around;
-  background: white;
-  width: 40%;
-  position: relative;
-  border-radius: 20px;
-}
-
 .fa-x {
   position: absolute;
   top: 20px;
   right: 25px;
   cursor: pointer;
+}
+
+.grey-bar {
+  border-top: 1px solid #b3b3b3;
+  margin-top: 4em;
 }
 
 #containerModal h2 {
@@ -446,7 +442,21 @@ strong {
   margin: 1.5em;
 }
 
-#containerModal .modal-work {
+/* modalGalley */
+
+#modalGallery {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background: white;
+  height: 650px;
+  width: 40%;
+  position: relative;
+  border-radius: 20px;
+}
+
+#modal-work {
   width: 73%;
   height: 70%;
   display: flex;
@@ -456,16 +466,16 @@ strong {
   gap: 10px;
 }
 
-#containerModal img {
+#modal-work img {
   height: 100px;
   width: 75px;
 }
 
-#containerModal figure {
+#modal-work figure {
   position: relative;
 }
 
-#containerModal span {
+#modal-work span {
   position: absolute;
   z-index: 1;
   right: 5px;
@@ -473,7 +483,7 @@ strong {
   background-color: black;
 }
 
-#containerModal .fa-trash-can {
+#modal-work .fa-trash-can {
   display: flex;
   color: #c4c4c4;
   justify-content: center;
@@ -484,16 +494,124 @@ strong {
   cursor: pointer;
 }
 
-#grey-bar {
-  border-top: 1px solid #b3b3b3;
-  width: 73%;
-  margin-top: 4em;
-}
-
-#containerModal button {
+#modalGallery-btn {
   padding: 0 50px;
   margin: 2em;
   cursor: pointer;
+  font-size: 14px;
 }
 
+/* modalNewWork */
 
+#modalNewWork {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background: white;
+  height: 650px;
+  width: 40%;
+  position: relative;
+  border-radius: 20px;
+}
+
+.fa-arrow-left {
+  position: absolute;
+  top: 20px;
+  left: 25px;
+  cursor: pointer;
+  font-size: 21px;
+}
+
+#containerPhoto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #e8f1f6;
+  width: 73%;
+  border-radius: 5px;
+}
+
+#containerPhoto svg {
+  margin-top: 1em;
+}
+
+#containerPhoto button {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  width: 173px;
+  height: 36px;
+  font-size: 14px;
+  color: #306685;
+  background: #cbd6dc;
+  border: none;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  z-index: 0;
+}
+
+#file {
+  position: absolute;
+  top: 0;
+  left: 120px;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  width: 42%;
+  height: 23%;
+  border: red 1px solid;
+}
+
+#containerPhoto p {
+  margin-bottom: 2em;
+}
+
+#modalNewWork-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 73%;
+  position: relative;
+}
+
+#modalNewWork-form label {
+  width: 99%;
+}
+
+#categorie,
+#titre {
+  color: #444444;
+  padding-left: 1em;
+  width: 100%;
+}
+
+#titre {
+  width: 95%;
+}
+
+#categorie {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.fa-chevron-down {
+  position: absolute;
+  bottom: 168px;
+  right: 35px;
+  color: #6c6c6c;
+  pointer-events: none;
+}
+
+#modalNewWork-btn {
+  background: #a7a7a7;
+  width: 57%;
+  height: 40px;
+  font-size: 14px;
+}

@@ -1,14 +1,16 @@
+//Variables globales
+const url = "http://localhost:5678/api/";
+// export { url };
+
 // Fetches works data from the API
 const fetchData = async (param) => {
   try {
-    const response = await fetch(`http://localhost:5678/api/${param}`);
+    const response = await fetch(url + param);
     return await response.json();
   } catch (error) {
     console.error(error);
   }
 };
-const arrayAllWorks = fetchData("works").then((result) => result);
-const arrayAllCategories = fetchData("categories").then((result) => result);
 
 // Inserts works into the HTML gallery
 const insertWorkInHtml = async (array) => {
@@ -22,6 +24,9 @@ const insertWorkInHtml = async (array) => {
     )
     .join("");
 };
+
+const arrayAllWorks = fetchData("works").then((result) => result);
+const arrayAllCategories = fetchData("categories").then((result) => result);
 
 // Displays all works in the HTML gallery
 const displayWorks = async () => insertWorkInHtml(await arrayAllWorks);
@@ -62,216 +67,199 @@ filterWorks();
 const ifLogged = () => {
   const loginElement = document.getElementById("login");
 
-  localStorage.getItem("logged") === "true" &&
-    ((loginElement.textContent = "Logout"),
+  if (localStorage.getItem("logged") === "true") {
+    loginElement.textContent = "Logout";
+
     // Add mode édition
     document
       .querySelector("header")
       .insertAdjacentHTML(
         "beforebegin",
-        '    <div id="edition-mode">\n  <div><a href="#"><i class="fa-regular fa-pen-to-square" style="color: #ffffff;"></i> Mode édition</a></div>\n</div>'
-      ),
+        '<div id="edition-mode"><div><a href="#"><i class="fa-regular fa-pen-to-square" style="color: #ffffff;"></i> Mode édition</a></div></div>'
+      );
+
     // Add Modifier
     document
       .querySelector("#portfolio h2")
       .insertAdjacentHTML(
         "beforeend",
         '<a><i class="fa-regular fa-pen-to-square" style="color: black"></i> Modifier</a>'
-      ),
-    // Disconnect: Clicking logout
-    loginElement.addEventListener("click", () =>
-      localStorage.setItem("logged", "false")
-    ));
-};
+      );
 
+    // Disconnect: Clicking logout
+    loginElement.addEventListener("click", () => {
+      localStorage.setItem("logged", "false");
+      localStorage.removeItem("token");
+    });
+  }
+};
 ifLogged();
 
-// --MODAL
-const setModalDisplay = (displayValue) => {
-  document.getElementById("containerModal").style.display = displayValue;
+const setModalDisplay = (elementListenTo, elementModified, displayValue) => {
+  if (elementListenTo) {
+    elementListenTo.addEventListener(
+      "click",
+      () => (elementModified.style.display = displayValue)
+    );
+  }
 };
 
 const displayModal = () => {
-  // Mode édition
-  document.querySelector("#edition-mode a").addEventListener("click", () => {
-    setModalDisplay("flex");
-  });
+  const containerModalElement = document.getElementById("containerModal");
+  const modeEditionElement = document.querySelector("#edition-mode a");
+  const modifierElement = document.querySelector("#portfolio a");
+  const modalGalleryElement = document.getElementById("modalGallery");
+  const modalNewWorkElement = document.getElementById("modalNewWork");
+  const x = document.getElementById("x");
+  const x2 = document.getElementById("x2");
+  const btnModalGallery = document.getElementById("modalGallery-btn");
+  const leftArrowElement = document.querySelector(".fa-arrow-left");
+  // DisplayValue
+  const flex = "flex";
+  const none = "none";
 
+  // Mode édition
+  setModalDisplay(modeEditionElement, containerModalElement, flex);
   // Modifier
-  document.querySelector("#portfolio a").addEventListener("click", () => {
-    setModalDisplay("flex");
-  });
+  setModalDisplay(modifierElement, containerModalElement, flex);
 
   // Leave when clicked on X
-  document
-    .querySelector("#containerModal .fa-x")
-    .addEventListener("click", () => {
-      setModalDisplay("none");
-    });
+  setModalDisplay(x, containerModalElement, none);
+  setModalDisplay(x2, containerModalElement, none);
 
   // Leave when clicked on container
-  document.getElementById("containerModal").addEventListener("click", (e) => {
-    e.target.id === "containerModal" && setModalDisplay("none");
-  });
+  containerModalElement.addEventListener(
+    "click",
+    (e) =>
+      e.target.id === "containerModal" &&
+      (containerModalElement.style.display = none)
+  );
+
+  // Go to modalAddWork
+  setModalDisplay(btnModalGallery, modalGalleryElement, none);
+  setModalDisplay(btnModalGallery, modalNewWorkElement, flex);
+  setModalDisplay(btnModalGallery, leftArrowElement, flex);
+
+  // Left Arrow (back to modalGallery)
+  setModalDisplay(leftArrowElement, modalGalleryElement, flex);
+  setModalDisplay(leftArrowElement, modalNewWorkElement, none);
+  setModalDisplay(leftArrowElement, leftArrowElement, none);
 };
 
 displayModal();
 
-// KYRA //
-// async function displayModalWorks() {
-//   const modalworkElement = document.querySelector(
-//     "#containerModal .modal-work"
-//   );
-//   modalworkElement.innerHTML = "";
-//   array = await arrayAllWorks;
-//   array.forEach((e) => {
-//     const figure = document.createElement("figure");
-//     const img = document.createElement("img");
-//     const span = document.createElement("span");
-//     const trash = document.createElement("i");
-//     trash.classList.add("fa-solid", "fa-trash-can");
-//     trash.id = e.id;
-//     img.src = e.imageUrl;
-//     span.appendChild(trash);
-//     figure.appendChild(span);
-//     figure.appendChild(img);
-//     modalworkElement.appendChild(figure);
-//   });
-//   deleteWork();
-// }
-// displayModalWorks();
-
-// Probleme de , //
-
-// const insertWorkInHtmlModal = async () => {
-//   array = await arrayAllWorks
-//   document.querySelector("#containerModal .modal-work").innerHTML =
-//     array
-//       .map(
-//         (e) => `<figure>
-//                 <span>
-//                   <i class="fa-solid fa-trash-can" id="${e.id}"></i>
-//                 </span>
-//                 <img src="${e.imageUrl}" alt="${e.title}">
-//                 </figure>
-//               `
-//       ).join();
-// };
-// insertWorkInHtmlModal();
-
+// Inserts works into the HTML MODAL (3.2)
 const insertWorkInHtmlModal = async () => {
   const array = await arrayAllWorks;
 
-  document.querySelector("#containerModal .modal-work").innerHTML = array
-    .filter((e) => e.imageUrl && e.title && e.id) // Exclut les éléments avec des valeurs indéfinies (bug ",")
-    .map(
-      (e) => `<figure>
-                <span>
-                  <i class="fa-solid fa-trash-can" id="${e.id}"></i>
-                </span>
-                <img src="${e.imageUrl}" alt="${e.title}">
-              </figure>`
-    )
-    .join("");
-  deleteWork();
+  const modalWorkElement = document.querySelector(
+    "#containerModal .modal-work"
+  );
+
+  if (modalWorkElement) {
+    modalWorkElement.innerHTML = array
+      .filter((e) => e.imageUrl && e.title && e.id)
+      .map(
+        (e) => `<figure>
+                  <span>
+                    <i class="fa-solid fa-trash-can" id="${e.id}"></i>
+                  </span>
+                  <img src="${e.imageUrl}" alt="${e.title}">
+                </figure>`
+      )
+      .join("");
+    deleteWork();
+  }
 };
-insertWorkInHtmlModal();
 
+// delete work
+function deleteWork() {
+  const allTrash = document.querySelectorAll(".fa-trash-can");
+  const token = localStorage.getItem("token");
 
-// function deleteWork() {
-//   const allTrash = document.querySelectorAll(".fa-trash-can");
-//   const token = localStorage.getItem("1")
-//   console.log(token);
+  allTrash.forEach((e) => {
+    e.addEventListener("click", (trash) => {
+      const id = trash.target.id;
+      console.log("trash ID: ", id);
 
-//   allTrash.forEach((e) => {
-//     e.addEventListener("click", (trash) => {
-//       const id = trash.id;
-//       const init = {
-//         method: "DELETE",
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       };
+      const init = {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-//       fetch("http://localhost:5678/api/works/" + id, init)
-//         .then(response => {
-//           if (!response.ok) {
-//             console.log("le DELETE n'as pas marché");
-//           }
-//           console.log(response);
-//         })
-//         .then(data => {
-//           console.log("le detele à réussi voici la data !", data);
-//           displayModalWorks();
-//           displayWorks();
-//           console.log(response);
-//         });
-//     });
-//   });
-// }
+      fetch(url + "works/" + id, init)
+        .then((response) => {
+          if (!response.ok) {
+            console.log("DELETE -> error");
+          }
+          console.log(response);
+        })
+        .then(() => {
+          console.log("DELETE -> succed");
+          displayWorks();
+          insertWorkInHtmlModal();
+        });
+    });
+  });
+}
 
+// Modal addPhoto 3.3
+const form = document.getElementById("modalNewWork-form");
+const token = localStorage.getItem("token");
 
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
 
+  for (item of formData) {
+    console.log(item[0], item[1]);
+  }
 
+  const init = {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  };
 
+  fetch(url + "works", init)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Erreur HTTP ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((res) => console.log(res))
+    .catch((error) => console.error("Erreur lors de la requête POST :", error));
+});
 
-// function deleteWork() {  
-//   // Récupérer le token du Local Storage
-//   const token = localStorage.getItem("token");
+//
 
-//   const handleDelete = async (e) => {
-//     try {
-//       const id = e.id;
-//       const init = {
-//         method: "DELETE",
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       };
+// 3.4
 
-//       const response = await fetch(`http://localhost:5678/api/${id}`, init);
+// const displayCategoriesList = async () => {
+//   const array = await arrayAllCategories;
+//   document.getElementById("categorie").innerHTML = array
+//     .map((e) => `<option>${e.name}</option>`)
+//     .join("");
+// };
+// displayCategoriesList()
 
-//       // Vérifiez si la requête a réussi
-//       if (!response.ok) {
-//         console.log("La suppression n'a pas réussi");
-//         return;
-//       }
-//       // Récupérez les données de la réponse JSON
-//       const data = await response.json();
+// const displayCategoriesList = async () => {
+//   const array = await arrayAllCategories;
+//   const categorieElement = document.getElementById("categorie");
 
-//       // Affichez un message de succès et mettez à jour l'affichage
-//       console.log("La suppression a réussi. Données :", data);
-//       displayModalWorks();
-//       displayWorks();
-//     } catch (error) {
-//       console.error(
-//         "Une erreur s'est produite lors de la suppression :",
-//         error
-//       );
-//     }
-//   };
-
-//   // Ajoutez un écouteur d'événement pour chaque élément de la corbeille
-//   document.querySelectorAll(".fa-trash-can").forEach((e) => {
-//     e.addEventListener("click", (e) => {
-//       handleDelete(e);
-//     });
-//   });
-// }
-
-
-
-
-// const postData = async (email, password) => {
-//   try {
-//     const response = await fetch("http://localhost:5678/api/users/login", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ email, password }),
-//     });
-//     return await response.json();
-//   } catch (error) {
-//     console.error(error);
-//     return { message: "Erreur côté serveur" };
+//   if (categorieElement) {
+//     categorieElement.innerHTML = array
+//       .map((e) => `<option>${e.name}</option>`)
+//       .join("");
 //   }
 // };
+
+// // Assurez-vous d'appeler la fonction après le chargement complet du document
+// document.addEventListener("DOMContentLoaded", () => {
+//   displayCategoriesList();
+// });

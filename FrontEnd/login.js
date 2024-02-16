@@ -1,16 +1,16 @@
-// Variables globales pour le login
-// const emailElement = document.getElementById("email");
-// const pwdElement = document.getElementById("password");
-// const formElement = document.getElementById("connexion-form");
-// const msgErrorElement = document.getElementById("connexion-error");
+// import { url } from './index';
+// console.log("url de l'api: ", url);
+
+const url = "http://localhost:5678/api/";
 
 const postData = async (email, password) => {
   try {
-    const response = await fetch("http://localhost:5678/api/users/login", {
+    const response = await fetch(`${url}users/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
+
     return await response.json();
   } catch (error) {
     console.error(error);
@@ -36,7 +36,7 @@ const login = async () => {
         );
       } else {
         localStorage.setItem("logged", "true");
-        localStorage.setItem(response.userId, response.token);
+        localStorage.setItem("token", response.token);
         window.location.href = "./index.html";
       }
     });
