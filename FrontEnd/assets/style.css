@@ -343,7 +343,7 @@ label {
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
 
-input[type="submit"] {
+#contact input[type="submit"] {
   width: 180px;
   height: 50px;
   margin: 2em auto;
@@ -400,7 +400,7 @@ strong {
   text-decoration: underline;
 }
 
-#connexion span {
+.error-msg {
   color: red;
   font-weight: bold;
   font-size: 18px;
@@ -429,9 +429,18 @@ strong {
   cursor: pointer;
 }
 
-.grey-bar {
-  border-top: 1px solid #b3b3b3;
+.grey-bar-modalPhoto {
+  border-top: 2px solid #b3b3b3;
   margin-top: 4em;
+  z-index: 0;
+  width: 73%;
+}
+
+.grey-bar {
+  border-top: 2px solid #b3b3b3;
+  margin-top: 4em;
+  z-index: 0;
+  width: 100%;
 }
 
 #containerModal h2 {
@@ -499,6 +508,8 @@ strong {
   margin: 2em;
   cursor: pointer;
   font-size: 14px;
+  background-color: #1d6154;
+  color: white;
 }
 
 /* modalNewWork */
@@ -521,6 +532,10 @@ strong {
   left: 25px;
   cursor: pointer;
   font-size: 21px;
+}
+
+#modalError {
+  padding: 0px 10%;
 }
 
 #containerPhoto {
@@ -584,13 +599,13 @@ strong {
 }
 
 #categorie,
-#titre {
+#title {
   color: #444444;
   padding-left: 1em;
   width: 100%;
 }
 
-#titre {
+#title {
   width: 95%;
 }
 
@@ -609,9 +624,39 @@ strong {
   pointer-events: none;
 }
 
-#modalNewWork-btn {
-  background: #a7a7a7;
-  width: 57%;
+.modalNewWork-btn-disabled {
+  background-color: #a7a7a7;
+  width: 43%;
   height: 40px;
   font-size: 14px;
+  margin: 2em auto;
+  color: white;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  font-family: "Syne";
+  font-weight: 700;
+  border-radius: 60px;
+  border: 1px solid #a7a7a7;
 }
+
+.modalNewWork-btn-activate {
+  background-color: #1d6154;
+  width: 45%;
+  height: 40px;
+  font-size: 14px;
+  margin: 2em auto;
+  color: white;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  font-family: "Syne";
+  font-weight: 700;
+  border-radius: 60px;
+  border: 1px solid #1d6154;
+  cursor: pointer;
+}
+
+/* #modalGallery-btn {
+  padding: 0 50px;
+  margin: 2em;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #1d6154;
+  color: white; */

@@ -1,5 +1,6 @@
 //Variables globales
 const url = "http://localhost:5678/api/";
+const token = localStorage.getItem("token");
 // export { url };
 
 // Fetches works data from the API
@@ -175,7 +176,6 @@ const insertWorkInHtmlModal = async () => {
 // delete work
 function deleteWork() {
   const allTrash = document.querySelectorAll(".fa-trash-can");
-  const token = localStorage.getItem("token");
 
   allTrash.forEach((e) => {
     e.addEventListener("click", (trash) => {
@@ -206,37 +206,184 @@ function deleteWork() {
 }
 
 // Modal addPhoto 3.3
-const form = document.getElementById("modalNewWork-form");
-const token = localStorage.getItem("token");
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const formData = new FormData(form);
+// const submitWorkForm = () => {
+//   const modalErrorElement = document.getElementById("modalError");
+//   const addError = (errorElement, message) => {
+//     errorElement.classList.add("form-error");
+//     modalErrorElement.innerHTML = `<p>${message}</p>`;
+//   };
 
-  for (item of formData) {
-    console.log(item[0], item[1]);
-  }
+//   const form = document.getElementById("modalNewWork-form");
+//   form.addEventListener("submit", async (e) => {
+//     e.preventDefault();
+//     const titleElement = document.getElementById("title"); // Correction ici
+//     const containerPhotoElement = document.getElementById("containerPhoto");
 
-  const init = {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
+//     // Vérification de la taille et du type du fichier
+//     const file = document.getElementById("file").files[0];
+//     if (
+//       !file ||
+//       (file.type !== "image/jpeg" && file.type !== "image/png") ||
+//       file.size > 4 * 1024 * 1024
+//     ) {
+//       addError(
+//         containerPhotoElement,
+//         "Erreur : Veuillez sélectionner une image JPEG ou PNG de taille inférieure à 4 Mo."
+//       );
+//       return;
+//     }
+
+//     // Vérification du titre
+//     const title = titleElement.value; // Correction ici
+//     if (!title || typeof title !== "string") {
+//       addError(titleElement, "Erreur : Veuillez entrer un titre valide.");
+//       return;
+//     }
+
+//     try {
+//       const formData = new FormData();
+//       const token = localStorage.getItem("token");
+//       const category = document.getElementById("categorie");
+//       const categoryValue = +category.options[category.selectedIndex].value;
+
+//       formData.set("image", file, file.name);
+//       formData.set("title", title);
+//       formData.set("category", categoryValue);
+
+//       // Réinitialiser les erreurs spécifiques
+//       modalErrorElement.innerHTML = "";
+//       containerPhotoElement.classList.remove("form-error")
+//       titleElement.classList.remove("form-error")
+
+//       //
+//       const response = await fetch("http://localhost:5678/api/works/", {
+//         method: "POST",
+//         headers: { Authorization: `Bearer ${token}` },
+//         body: formData,
+//       });
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         console.log("Réponse du serveur :", data);
+//       } else {
+//         console.error("Erreur lors de la requête :", response.statusText);
+//       }
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   });
+// };
+
+// submitWorkForm();
+
+const submitWorkForm = () => {
+  const modalErrorElement = document.getElementById("modalError");
+  const form = document.getElementById("modalNewWork-form");
+
+  // Déclarer titleElement avant de l'utiliser
+  const titleElement = document.getElementById("title");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Fonction pour afficher un message d'erreur
+    const addError = (errorElement, message) => {
+      errorElement.classList.add("form-error");
+      modalErrorElement.innerHTML = `<p>${message}</p>`;
+    };
+
+    // Vérification de la taille et du type du fichier
+    const file = document.getElementById("file").files[0];
+    const containerPhotoElement = document.getElementById("containerPhoto");
+    const fileError =
+      !file ||
+      (file.type !== "image/jpeg" && file.type !== "image/png") ||
+      file.size > 4 * 1024 * 1024;
+
+    fileError
+      ? addError(
+          containerPhotoElement,
+          "Erreur : Veuillez sélectionner une image JPEG ou PNG de taille inférieure à 4 Mo."
+        )
+      : containerPhotoElement.classList.remove("form-error");
+
+    // Vérification du titre
+    const title = titleElement.value;
+    const titleError = !title || typeof title !== "string";
+
+    titleError
+      ? addError(titleElement, "Erreur : Veuillez entrer un titre valide.")
+      : titleElement.classList.remove("form-error");
+
+    // arrête le code si une erreur est trouvée
+    if (fileError || titleError) return;
+
+    try {
+      const formData = new FormData();
+      const category = document.getElementById("categorie");
+      const categoryValue = +category.options[category.selectedIndex].value;
+
+      formData.set("image", file, file.name);
+      formData.set("title", title);
+      formData.set("category", categoryValue);
+
+      // Réinitialiser le message d'erreur
+      modalErrorElement.innerHTML = "";
+
+      const response = await fetch("http://localhost:5678/api/works/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Réponse du serveur :", data);
+      } else {
+        console.error("Erreur lors de la requête :", response.statusText);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  });
+};
+
+submitWorkForm();
+
+// Désactiver ou activer modalNewWork-btn
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("file");
+  const titleInput = document.getElementById("title");
+  const categoryInput = document.getElementById("categorie");
+  const submitButton = document.getElementById("modalNewWork-btn");
+
+  const updateSubmitButton = () => {
+    const isButtonDisabled =
+      !fileInput.value.trim() ||
+      !titleInput.value.trim() ||
+      !categoryInput.value;
+
+    submitButton.disabled = isButtonDisabled;
+    submitButton.classList.toggle(
+      "modalNewWork-btn-activate",
+      !isButtonDisabled
+    );
+    submitButton.classList.toggle(
+      "modalNewWork-btn-disabled",
+      isButtonDisabled
+    );
   };
 
-  fetch(url + "works", init)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Erreur HTTP ${res.status}`);
-      }
-      return res.json();
-    })
-    .then((res) => console.log(res))
-    .catch((error) => console.error("Erreur lors de la requête POST :", error));
-});
+  fileInput.addEventListener("input", updateSubmitButton);
+  titleInput.addEventListener("input", updateSubmitButton);
+  categoryInput.addEventListener("change", updateSubmitButton);
 
-//
+  // Initial update
+  updateSubmitButton();
+});
 
 // 3.4
 

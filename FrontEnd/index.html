@@ -94,7 +94,7 @@
         <i id="x" class="fa-solid fa-x"></i>
         <h2>Galerie photo</h2>
         <div id="modal-work"></div>
-        <div class="grey-bar"></div>
+        <div class="grey-bar-modalPhoto"></div>
         <button id="modalGallery-btn" class="button btn-selected">
           Ajouter une photo
         </button>
@@ -104,7 +104,8 @@
         <i id="x2" class="fa-solid fa-x"></i>
         <i class="fa-solid fa-arrow-left"></i>
         <h2>Ajout photo</h2>
-        <form id="modalNewWork-form">
+        <div id="modalError" class="error-msg"></div>
+        <form id="modalNewWork-form" novalidate>
           <div id="containerPhoto">
             <svg
               width="76"
@@ -122,33 +123,27 @@
             <input id="file" name="file" type="file" />
             <p>jpg, png : 4mo max</p>
           </div>
-          <label for="titre">Titre</label>
+          <label for="title">Titre</label>
           <input
-            id="titre"
-            name="titre"
+            id="title"
+            name="title"
             type="text"
             class="input-text"
             required
           />
-
           <label for="categorie">Catégorie</label>
           <select id="categorie" name="categorie" class="input-text" required>
             <option value="" disabled selected hidden>
               Choisissez une catégorie
             </option>
-            <option value="Objects">Objects</option>
-            <option value="Appartements">Appartements</option>
-            <option value="Hotels & restaurants">Hotels & restaurants</option>
+            <option value="1">Objects</option>
+            <option value="2">Appartements</option>
+            <option value="3">Hotels & restaurants</option>
           </select>
 
           <i class="fa-solid fa-chevron-down"></i>
           <div class="grey-bar"></div>
-          <input
-            id="modalNewWork-btn"
-            class="button btn-selected"
-            type="submit"
-            value="Valider"
-          />
+          <input id="modalNewWork-btn" class="" type="submit" value="Valider" />
         </form>
       </div>
     </div>

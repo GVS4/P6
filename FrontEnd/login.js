@@ -28,17 +28,15 @@ const login = async () => {
       const msgErrorElement = document.getElementById("connexion-error");
 
       const response = await postData(useremail, userpwd);
-      if (response.userId === undefined) {
-        // error
-        msgErrorElement.textContent = "Email ou mot de passe incorrect";
-        ["email", "password"].forEach((id) =>
-          document.getElementById(id).classList.add("form-error")
-        );
-      } else {
-        localStorage.setItem("logged", "true");
-        localStorage.setItem("token", response.token);
-        window.location.href = "./index.html";
-      }
+      response.userId === undefined
+        ? ((msgErrorElement.textContent = "Email ou mot de passe incorrect"),
+          msgErrorElement.classList.add("error-msg"),
+          ["email", "password"].forEach((id) =>
+            document.getElementById(id).classList.add("form-error")
+          ))
+        : (localStorage.setItem("logged", "true"),
+          localStorage.setItem("token", response.token),
+          (window.location.href = "./index.html"));
     });
 };
 
