@@ -1,19 +1,63 @@
-//Variables globales
+// //Variables globales
+// const url = "http://localhost:5678/api/";
+// const token = localStorage.getItem("token");
+// // export { url };
+
+// // Fetches works data from the API
+// const fetchData = async (param) => {
+//   try {
+//     const response = await fetch(url + param);
+//     return await response.json();
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+// const arrayAllWorks = fetchData("works").then((result) => result);
+// const arrayAllCategories = fetchData("categories").then((result) => result);
+
+// const arrayawait = async () => {
+//   console.log(await arrayAllWorks);
+// }
+// arrayawait()
+// console.log(arrayAllWorks);
+
+//---------------------
+
+// Variables globales
 const url = "http://localhost:5678/api/";
 const token = localStorage.getItem("token");
-// export { url };
+let arrayAllWorks = JSON.parse(sessionStorage.getItem("arrayAllWorks"));
+let arrayAllCategories = JSON.parse(
+  sessionStorage.getItem("arrayAllCategories")
+);
 
-// Fetches works data from the API
-const fetchData = async (param) => {
+const fetchData = async (URI, init) => {
   try {
-    const response = await fetch(url + param);
+    const response = await fetch(url + URI, init);
+    console.log(response); // Ajoutez cette ligne pour vérifier la réponse
     return await response.json();
   } catch (error) {
     console.error(error);
   }
 };
 
-// Inserts works into the HTML gallery
+// Fetch and store data in sessionStorage
+const fetchAndStoreData = async (URI, key) => {
+  try {
+    const value = await fetchData(URI);
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.error(error);
+  }
+};
+fetchAndStoreData("works", "arrayAllWorks");
+fetchAndStoreData("categories", "arrayAllCategories");
+
+// Log the retrieved data
+console.log(arrayAllWorks);
+console.log(arrayAllCategories);
+
+//Inserts works into the HTML gallery
 const insertWorkInHtml = async (array) => {
   document.getElementById("gallery").innerHTML = array
     .map(
@@ -26,16 +70,12 @@ const insertWorkInHtml = async (array) => {
     .join("");
 };
 
-const arrayAllWorks = fetchData("works").then((result) => result);
-const arrayAllCategories = fetchData("categories").then((result) => result);
-
 // Displays all works in the HTML gallery
-const displayWorks = async () => insertWorkInHtml(await arrayAllWorks);
-displayWorks();
+insertWorkInHtml(arrayAllWorks);
 
 // Displays category buttons and adds "Tous" as the first option
 const DisplayBtnCategories = async () => {
-  const array = await arrayAllCategories;
+  const array = arrayAllCategories.slice();
   array.unshift({ id: 0, name: "Tous" });
 
   document.getElementById("filter").innerHTML = array
@@ -44,12 +84,11 @@ const DisplayBtnCategories = async () => {
 };
 
 // filters works based on buttons
-async function filterWorks() {
-  await DisplayBtnCategories();
-  const array = await arrayAllWorks;
+function filterWorks() {
+  DisplayBtnCategories();
   const arrayBtn = Array.from(document.querySelectorAll("#filter button"));
   arrayBtn.forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", () => {
       const btnId = +btn.id;
       btn.classList.add("btn-selected");
       arrayBtn
@@ -57,14 +96,18 @@ async function filterWorks() {
         .forEach((otherBtn) => otherBtn.classList.remove("btn-selected"));
 
       const worksFiltered =
-        btnId === 0 ? array : array.filter((e) => btnId === e.categoryId);
+        btnId === 0
+          ? arrayAllWorks
+          : arrayAllWorks.filter((e) => btnId === e.categoryId);
       insertWorkInHtml(worksFiltered);
     });
   });
 }
 filterWorks();
 
-// --IF USER IS LOGGED :
+// ---------- ----------
+
+// --IF USER IS LOGGED : (2.2)
 const ifLogged = () => {
   const loginElement = document.getElementById("login");
 
@@ -96,13 +139,16 @@ const ifLogged = () => {
 };
 ifLogged();
 
-const setModalDisplay = (elementListenTo, elementModified, displayValue) => {
-  if (elementListenTo) {
-    elementListenTo.addEventListener(
+// ---------- ----------
+
+// MODAL
+const setModalDisplay = (trigger, target, displayValue) => {
+  // short-circuit evaluation
+  trigger &&
+    trigger.addEventListener(
       "click",
-      () => (elementModified.style.display = displayValue)
+      () => (target.style.display = displayValue)
     );
-  }
 };
 
 const displayModal = () => {
@@ -146,16 +192,13 @@ const displayModal = () => {
   setModalDisplay(leftArrowElement, modalNewWorkElement, none);
   setModalDisplay(leftArrowElement, leftArrowElement, none);
 };
-
 displayModal();
 
-// Inserts works into the HTML MODAL (3.2)
-const insertWorkInHtmlModal = async () => {
-  const array = await arrayAllWorks;
+// ---------- 3.1 ----------
 
-  const modalWorkElement = document.querySelector(
-    "#containerModal .modal-work"
-  );
+// Inserts works into the HTML MODAL
+const insertWorkInHtmlModal = (array) => {
+  const modalWorkElement = document.getElementById("modal-work");
 
   if (modalWorkElement) {
     modalWorkElement.innerHTML = array
@@ -169,131 +212,111 @@ const insertWorkInHtmlModal = async () => {
                 </figure>`
       )
       .join("");
-    deleteWork();
   }
 };
+insertWorkInHtmlModal(arrayAllWorks);
 
-// delete work
-function deleteWork() {
+// ---------- 3.2 ----------
+
+// Supprimer un work
+async function deleteWork(id) {
+  const init = {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  try {
+    const response = await fetch(url + "works/" + id, init);
+    response.status !== 204
+      ? console.log("DELETE -> error", response.status)
+      : console.log(response);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Supprime un work au click sur trash
+const setupDeleteButtons = () => {
   const allTrash = document.querySelectorAll(".fa-trash-can");
 
   allTrash.forEach((e) => {
-    e.addEventListener("click", (trash) => {
-      const id = trash.target.id;
-      console.log("trash ID: ", id);
-
-      const init = {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
-      fetch(url + "works/" + id, init)
-        .then((response) => {
-          if (!response.ok) {
-            console.log("DELETE -> error");
-          }
-          console.log(response);
-        })
-        .then(() => {
-          console.log("DELETE -> succed");
-          displayWorks();
-          insertWorkInHtmlModal();
-        });
+    e.addEventListener("click", async (trash) => {
+      const id = +trash.target.id;
+      console.log(id);
+      deleteWork(id);
+      array = arrayAllWorks.filter((work) => work.id !== id);
+      console.log("arrayAllWorks : ", arrayAllWorks);
+      console.log("array : ", array);
+      insertWorkInHtmlModal(array);
     });
   });
-}
+};
+setupDeleteButtons();
 
-// Modal addPhoto 3.3
+// ---------- 3.3 ----------
 
-// const submitWorkForm = () => {
-//   const modalErrorElement = document.getElementById("modalError");
-//   const addError = (errorElement, message) => {
-//     errorElement.classList.add("form-error");
-//     modalErrorElement.innerHTML = `<p>${message}</p>`;
-//   };
+// Affiche les catégories de #catégorie
+const DisplayOptionsCategory = async () => {
+  const array = arrayAllCategories.slice();
+  const defaultOption =
+    '<option value="0" disabled selected hidden>Choisissez une catégorie</option>';
+  const htmlContent =
+    defaultOption +
+    array.map((e) => `<option value="${e.id}">${e.name}</option>`).join("");
 
-//   const form = document.getElementById("modalNewWork-form");
-//   form.addEventListener("submit", async (e) => {
-//     e.preventDefault();
-//     const titleElement = document.getElementById("title"); // Correction ici
-//     const containerPhotoElement = document.getElementById("containerPhoto");
+  document.getElementById("categorie").innerHTML = htmlContent;
+};
 
-//     // Vérification de la taille et du type du fichier
-//     const file = document.getElementById("file").files[0];
-//     if (
-//       !file ||
-//       (file.type !== "image/jpeg" && file.type !== "image/png") ||
-//       file.size > 4 * 1024 * 1024
-//     ) {
-//       addError(
-//         containerPhotoElement,
-//         "Erreur : Veuillez sélectionner une image JPEG ou PNG de taille inférieure à 4 Mo."
-//       );
-//       return;
-//     }
+// au clic sur #modalGallery-btn
+document.getElementById("modalGallery-btn").addEventListener("click", () => {
+  DisplayOptionsCategory();
+});
 
-//     // Vérification du titre
-//     const title = titleElement.value; // Correction ici
-//     if (!title || typeof title !== "string") {
-//       addError(titleElement, "Erreur : Veuillez entrer un titre valide.");
-//       return;
-//     }
+// Désactiver ou activer #modalNewWork-btn
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("file");
+  const titleInput = document.getElementById("title");
+  const categoryInput = document.getElementById("categorie");
+  const submitButton = document.getElementById("modalNewWork-btn");
 
-//     try {
-//       const formData = new FormData();
-//       const token = localStorage.getItem("token");
-//       const category = document.getElementById("categorie");
-//       const categoryValue = +category.options[category.selectedIndex].value;
+  const updateSubmitButton = () => {
+    const isButtonDisabled =
+      !fileInput.value ||
+      !titleInput.value.trim() ||
+      categoryInput.value === "0"; // Option par défaut
 
-//       formData.set("image", file, file.name);
-//       formData.set("title", title);
-//       formData.set("category", categoryValue);
+    submitButton.disabled = isButtonDisabled;
+    submitButton.classList.toggle(
+      "modalNewWork-btn-activate",
+      !isButtonDisabled
+    );
+    submitButton.classList.toggle(
+      "modalNewWork-btn-disabled",
+      isButtonDisabled
+    );
+  };
 
-//       // Réinitialiser les erreurs spécifiques
-//       modalErrorElement.innerHTML = "";
-//       containerPhotoElement.classList.remove("form-error")
-//       titleElement.classList.remove("form-error")
+  fileInput.addEventListener("input", updateSubmitButton);
+  titleInput.addEventListener("input", updateSubmitButton);
+  categoryInput.addEventListener("change", updateSubmitButton);
 
-//       //
-//       const response = await fetch("http://localhost:5678/api/works/", {
-//         method: "POST",
-//         headers: { Authorization: `Bearer ${token}` },
-//         body: formData,
-//       });
+  // Initial update
+  updateSubmitButton();
+});
 
-//       if (response.ok) {
-//         const data = await response.json();
-//         console.log("Réponse du serveur :", data);
-//       } else {
-//         console.error("Erreur lors de la requête :", response.statusText);
-//       }
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   });
-// };
-
-// submitWorkForm();
-
-const submitWorkForm = () => {
+// ModalNewWork
+const submitWorkForm = async () => {
   const modalErrorElement = document.getElementById("modalError");
   const form = document.getElementById("modalNewWork-form");
-
-  // Déclarer titleElement avant de l'utiliser
   const titleElement = document.getElementById("title");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Fonction pour afficher un message d'erreur
-    const addError = (errorElement, message) => {
-      errorElement.classList.add("form-error");
-      modalErrorElement.innerHTML = `<p>${message}</p>`;
-    };
+    // GESTION d'ERREUR
 
-    // Vérification de la taille et du type du fichier
+    // Vérification du fichier
     const file = document.getElementById("file").files[0];
     const containerPhotoElement = document.getElementById("containerPhoto");
     const fileError =
@@ -316,34 +339,44 @@ const submitWorkForm = () => {
       ? addError(titleElement, "Erreur : Veuillez entrer un titre valide.")
       : titleElement.classList.remove("form-error");
 
+    //   categoryError
+    //   ? addError(categoryInput, "Erreur : Veuillez choisir une catégorie.")
+    //   : categoryInput.classList.remove("form-error");
+
+    // // arrête le code si une erreur est trouvée
+    // if (fileError || titleError || categoryError) return;
+
     // arrête le code si une erreur est trouvée
     if (fileError || titleError) return;
 
+    // IL n'y à pas d'erreur :
     try {
       const formData = new FormData();
       const category = document.getElementById("categorie");
       const categoryValue = +category.options[category.selectedIndex].value;
 
       formData.set("image", file, file.name);
-      formData.set("title", title);
-      formData.set("category", categoryValue);
+      formData.append("title", title);
+      formData.append("category", categoryValue);
 
       // Réinitialiser le message d'erreur
       modalErrorElement.innerHTML = "";
 
-      const response = await fetch("http://localhost:5678/api/works/", {
+      const init = {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      });
+      };
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Réponse du serveur :", data);
+      const response = await fetchData("works", init);
+
+      if (response) {
+        console.log("Réponse du serveur :", response);
+        resetForm();
       } else {
-        console.error("Erreur lors de la requête :", response.statusText);
+        console.error("Erreur lors de la requête :", response);
       }
     } catch (error) {
       console.error(error);
@@ -353,60 +386,41 @@ const submitWorkForm = () => {
 
 submitWorkForm();
 
-// Désactiver ou activer modalNewWork-btn
+// Fonction pour afficher un message d'erreur
+const addError = (errorElement, message) => {
+  errorElement.classList.add("form-error");
+  modalErrorElement.innerHTML = `<p>${message}</p>`;
+};
+
+// Réinitialise le formulaire
+const resetForm = () => {
+  document.getElementById("file").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("categorie").value = "";
+  document.getElementById("containerModal").style.display = "none";
+};
+
+// --------------------------------
+
+// Preview IMG
 document.addEventListener("DOMContentLoaded", () => {
   const fileInput = document.getElementById("file");
-  const titleInput = document.getElementById("title");
-  const categoryInput = document.getElementById("categorie");
-  const submitButton = document.getElementById("modalNewWork-btn");
+  const previewImage = document.getElementById("previewImage");
 
-  const updateSubmitButton = () => {
-    const isButtonDisabled =
-      !fileInput.value.trim() ||
-      !titleInput.value.trim() ||
-      !categoryInput.value;
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
 
-    submitButton.disabled = isButtonDisabled;
-    submitButton.classList.toggle(
-      "modalNewWork-btn-activate",
-      !isButtonDisabled
-    );
-    submitButton.classList.toggle(
-      "modalNewWork-btn-disabled",
-      isButtonDisabled
-    );
-  };
+    if (file) {
+      const reader = new FileReader();
 
-  fileInput.addEventListener("input", updateSubmitButton);
-  titleInput.addEventListener("input", updateSubmitButton);
-  categoryInput.addEventListener("change", updateSubmitButton);
+      reader.onload = (e) => {
+        previewImage.src = e.target.result;
+        previewImage.style.display = "block";
+      };
 
-  // Initial update
-  updateSubmitButton();
+      reader.readAsDataURL(file);
+    } else {
+      previewImage.style.display = "none";
+    }
+  });
 });
-
-// 3.4
-
-// const displayCategoriesList = async () => {
-//   const array = await arrayAllCategories;
-//   document.getElementById("categorie").innerHTML = array
-//     .map((e) => `<option>${e.name}</option>`)
-//     .join("");
-// };
-// displayCategoriesList()
-
-// const displayCategoriesList = async () => {
-//   const array = await arrayAllCategories;
-//   const categorieElement = document.getElementById("categorie");
-
-//   if (categorieElement) {
-//     categorieElement.innerHTML = array
-//       .map((e) => `<option>${e.name}</option>`)
-//       .join("");
-//   }
-// };
-
-// // Assurez-vous d'appeler la fonction après le chargement complet du document
-// document.addEventListener("DOMContentLoaded", () => {
-//   displayCategoriesList();
-// });

@@ -119,6 +119,7 @@
                 fill="#B9C5CC"
               />
             </svg>
+            <img id="previewImage" alt="Image Preview" />
             <button class="button">+ Ajouter photo</button>
             <input id="file" name="file" type="file" />
             <p>jpg, png : 4mo max</p>
@@ -132,15 +133,12 @@
             required
           />
           <label for="categorie">Catégorie</label>
-          <select id="categorie" name="categorie" class="input-text" required>
-            <option value="" disabled selected hidden>
-              Choisissez une catégorie
-            </option>
-            <option value="1">Objects</option>
-            <option value="2">Appartements</option>
-            <option value="3">Hotels & restaurants</option>
-          </select>
-
+          <select
+            id="categorie"
+            name="categorie"
+            class="input-text"
+            required
+          ></select>
           <i class="fa-solid fa-chevron-down"></i>
           <div class="grey-bar"></div>
           <input id="modalNewWork-btn" class="" type="submit" value="Valider" />

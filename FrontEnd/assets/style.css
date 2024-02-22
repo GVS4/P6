@@ -540,6 +540,7 @@ strong {
 
 #containerPhoto {
   display: flex;
+  position: relative;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -548,13 +549,23 @@ strong {
   border-radius: 5px;
 }
 
+#previewImage {
+  display: none;
+  max-width: 100%;
+  max-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 28%;
+  z-index: 1;
+  width: 44%;
+}
+
 #containerPhoto svg {
   margin-top: 1em;
 }
 
 #containerPhoto button {
   display: flex;
-  position: relative;
   justify-content: center;
   align-items: center;
   width: 173px;
@@ -572,12 +583,12 @@ strong {
 #file {
   position: absolute;
   top: 0;
-  left: 120px;
+  left: 115px;
   opacity: 0;
   cursor: pointer;
   z-index: 1;
-  width: 42%;
-  height: 23%;
+  width: 43%;
+  height: 71%;
   border: red 1px solid;
 }
 
