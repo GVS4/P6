@@ -1,6 +1,3 @@
-// import { url } from './index';
-// console.log("url de l'api: ", url);
-
 const url = "http://localhost:5678/api/";
 
 const postData = async (email, password) => {

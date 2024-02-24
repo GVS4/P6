@@ -1,40 +1,11 @@
-// //Variables globales
-// const url = "http://localhost:5678/api/";
-// const token = localStorage.getItem("token");
-// // export { url };
-
-// // Fetches works data from the API
-// const fetchData = async (param) => {
-//   try {
-//     const response = await fetch(url + param);
-//     return await response.json();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-// const arrayAllWorks = fetchData("works").then((result) => result);
-// const arrayAllCategories = fetchData("categories").then((result) => result);
-
-// const arrayawait = async () => {
-//   console.log(await arrayAllWorks);
-// }
-// arrayawait()
-// console.log(arrayAllWorks);
-
-//---------------------
-
 // Variables globales
 const url = "http://localhost:5678/api/";
 const token = localStorage.getItem("token");
-let arrayAllWorks = JSON.parse(sessionStorage.getItem("arrayAllWorks"));
-let arrayAllCategories = JSON.parse(
-  sessionStorage.getItem("arrayAllCategories")
-);
 
 const fetchData = async (URI, init) => {
   try {
     const response = await fetch(url + URI, init);
-    console.log(response); // Ajoutez cette ligne pour vérifier la réponse
+    console.log(response);
     return await response.json();
   } catch (error) {
     console.error(error);
@@ -45,17 +16,30 @@ const fetchData = async (URI, init) => {
 const fetchAndStoreData = async (URI, key) => {
   try {
     const value = await fetchData(URI);
-    sessionStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error(error);
   }
 };
-fetchAndStoreData("works", "arrayAllWorks");
 fetchAndStoreData("categories", "arrayAllCategories");
 
-// Log the retrieved data
-console.log(arrayAllWorks);
-console.log(arrayAllCategories);
+const getArrayFromLocalStorage = (key) => {
+  const storedData = localStorage.getItem(key);
+  return storedData ? JSON.parse(storedData) : null;
+};
+
+const getArrayAllWorks = () => {
+  return getArrayFromLocalStorage("arrayAllWorks");
+};
+const getArrayAllCategories = () => {
+  return getArrayFromLocalStorage("arrayAllCategories");
+};
+
+async function initialiseWork() {
+  await fetchAndStoreData("works", "arrayAllWorks");
+  insertWorkInHtml(getArrayAllWorks());
+}
+initialiseWork();
 
 //Inserts works into the HTML gallery
 const insertWorkInHtml = async (array) => {
@@ -70,12 +54,9 @@ const insertWorkInHtml = async (array) => {
     .join("");
 };
 
-// Displays all works in the HTML gallery
-insertWorkInHtml(arrayAllWorks);
-
 // Displays category buttons and adds "Tous" as the first option
 const DisplayBtnCategories = async () => {
-  const array = arrayAllCategories.slice();
+  const array = getArrayAllCategories().slice();
   array.unshift({ id: 0, name: "Tous" });
 
   document.getElementById("filter").innerHTML = array
@@ -97,17 +78,17 @@ function filterWorks() {
 
       const worksFiltered =
         btnId === 0
-          ? arrayAllWorks
-          : arrayAllWorks.filter((e) => btnId === e.categoryId);
+          ? getArrayAllWorks()
+          : getArrayAllWorks().filter((e) => btnId === e.categoryId);
       insertWorkInHtml(worksFiltered);
     });
   });
 }
 filterWorks();
 
-// ---------- ----------
+// ---------- 2.2----------
 
-// --IF USER IS LOGGED : (2.2)
+// --IF USER IS LOGGED :
 const ifLogged = () => {
   const loginElement = document.getElementById("login");
 
@@ -138,8 +119,6 @@ const ifLogged = () => {
   }
 };
 ifLogged();
-
-// ---------- ----------
 
 // MODAL
 const setModalDisplay = (trigger, target, displayValue) => {
@@ -214,11 +193,22 @@ const insertWorkInHtmlModal = (array) => {
       .join("");
   }
 };
-insertWorkInHtmlModal(arrayAllWorks);
+insertWorkInHtmlModal(getArrayAllWorks());
 
 // ---------- 3.2 ----------
 
-// Supprimer un work
+// Fonction pour supprimer un élément du localStorage
+const removeFromLocalStorageById = (key, id) => {
+  const storedData = localStorage.getItem(key);
+
+  if (storedData) {
+    const dataArray = JSON.parse(storedData);
+    const filteredArray = dataArray.filter((item) => item.id !== id);
+    localStorage.setItem(key, JSON.stringify(filteredArray));
+  }
+};
+
+// Fonction pour supprimer un work
 async function deleteWork(id) {
   const init = {
     method: "DELETE",
@@ -226,39 +216,41 @@ async function deleteWork(id) {
       Authorization: `Bearer ${token}`,
     },
   };
+
   try {
     const response = await fetch(url + "works/" + id, init);
     response.status !== 204
       ? console.log("DELETE -> error", response.status)
       : console.log(response);
+
+    removeFromLocalStorageById("arrayAllWorks", id);
   } catch (error) {
     console.error(error);
   }
 }
 
-// Supprime un work au click sur trash
-const setupDeleteButtons = () => {
+// Supprime un work au clic sur la poubelle
+const setupDeleteButton = () => {
   const allTrash = document.querySelectorAll(".fa-trash-can");
 
   allTrash.forEach((e) => {
     e.addEventListener("click", async (trash) => {
       const id = +trash.target.id;
-      console.log(id);
-      deleteWork(id);
-      array = arrayAllWorks.filter((work) => work.id !== id);
-      console.log("arrayAllWorks : ", arrayAllWorks);
-      console.log("array : ", array);
-      insertWorkInHtmlModal(array);
+      await deleteWork(id);
+      insertWorkInHtml(getArrayAllWorks());
+      insertWorkInHtmlModal(getArrayAllWorks());
+      setupDeleteButton();
     });
   });
 };
-setupDeleteButtons();
+
+setupDeleteButton();
 
 // ---------- 3.3 ----------
 
 // Affiche les catégories de #catégorie
 const DisplayOptionsCategory = async () => {
-  const array = arrayAllCategories.slice();
+  const array = getArrayAllCategories().slice();
   const defaultOption =
     '<option value="0" disabled selected hidden>Choisissez une catégorie</option>';
   const htmlContent =
@@ -274,7 +266,7 @@ document.getElementById("modalGallery-btn").addEventListener("click", () => {
 });
 
 // Désactiver ou activer #modalNewWork-btn
-document.addEventListener("DOMContentLoaded", () => {
+function setupSubmitButton() {
   const fileInput = document.getElementById("file");
   const titleInput = document.getElementById("title");
   const categoryInput = document.getElementById("categorie");
@@ -303,56 +295,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial update
   updateSubmitButton();
-});
+}
+
+document.addEventListener("DOMContentLoaded", setupSubmitButton);
 
 // ModalNewWork
-const submitWorkForm = async () => {
+
+// Fonction pour afficher un message d'erreur
+const addError = (errorElement, message) => {
+  const modalErrorElement = document.getElementById("modalError");
+  errorElement.classList.add("form-error");
+  modalErrorElement.innerHTML = `<p>${message}</p>`;
+};
+
+// Fonction de validation des champs du formulaire
+const validateForm = () => {
+  const file = document.getElementById("file").files[0];
+  const containerPhotoElement = document.getElementById("containerPhoto");
+  const titleElement = document.getElementById("title");
+  const title = titleElement.value;
+  const category = document.getElementById("categorie");
+
+  // Vérification du fichier
+  const fileError =
+    !file ||
+    (file.type !== "image/jpeg" && file.type !== "image/png") ||
+    file.size > 4 * 1024 * 1024;
+
+  fileError
+    ? addError(
+        containerPhotoElement,
+        "Erreur : Veuillez sélectionner une image JPEG ou PNG de taille inférieure à 4 Mo."
+      )
+    : containerPhotoElement.classList.remove("form-error");
+
+  // Vérification du titre
+  const titleError = !title || typeof title !== "string";
+
+  titleError
+    ? addError(titleElement, "Erreur : Veuillez entrer un titre valide.")
+    : titleElement.classList.remove("form-error");
+
+  // Vérification de la catégorie
+  const categoryError = +category.value === 0;
+
+  categoryError
+    ? addError(category, "Erreur : Veuillez choisir une catégorie.")
+    : category.classList.remove("form-error");
+
+  return { fileError, titleError, categoryError };
+};
+
+// Fonction pour gérer la l'envoi du formulaire
+const sendForm = async () => {
   const modalErrorElement = document.getElementById("modalError");
   const form = document.getElementById("modalNewWork-form");
-  const titleElement = document.getElementById("title");
+  const category = document.getElementById("categorie");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // GESTION d'ERREUR
+    // validateForm renvoi un objet composé de l'erreur
+    const error = validateForm();
 
-    // Vérification du fichier
-    const file = document.getElementById("file").files[0];
-    const containerPhotoElement = document.getElementById("containerPhoto");
-    const fileError =
-      !file ||
-      (file.type !== "image/jpeg" && file.type !== "image/png") ||
-      file.size > 4 * 1024 * 1024;
+    // Arrête le code si une erreur est trouvée
+    if (error.fileError || error.titleError || error.categoryError) return;
 
-    fileError
-      ? addError(
-          containerPhotoElement,
-          "Erreur : Veuillez sélectionner une image JPEG ou PNG de taille inférieure à 4 Mo."
-        )
-      : containerPhotoElement.classList.remove("form-error");
-
-    // Vérification du titre
-    const title = titleElement.value;
-    const titleError = !title || typeof title !== "string";
-
-    titleError
-      ? addError(titleElement, "Erreur : Veuillez entrer un titre valide.")
-      : titleElement.classList.remove("form-error");
-
-    //   categoryError
-    //   ? addError(categoryInput, "Erreur : Veuillez choisir une catégorie.")
-    //   : categoryInput.classList.remove("form-error");
-
-    // // arrête le code si une erreur est trouvée
-    // if (fileError || titleError || categoryError) return;
-
-    // arrête le code si une erreur est trouvée
-    if (fileError || titleError) return;
-
-    // IL n'y à pas d'erreur :
+    // IL n'y a pas d'erreur :
     try {
       const formData = new FormData();
-      const category = document.getElementById("categorie");
+      const file = document.getElementById("file").files[0];
+      const title = document.getElementById("title").value;
       const categoryValue = +category.options[category.selectedIndex].value;
 
       formData.set("image", file, file.name);
@@ -374,7 +387,14 @@ const submitWorkForm = async () => {
 
       if (response) {
         console.log("Réponse du serveur :", response);
+        await fetchAndStoreData("works", "arrayAllWorks");
+        insertWorkInHtml(getArrayAllWorks());
+        insertWorkInHtmlModal(getArrayAllWorks());
         resetForm();
+        setupDeleteButton();
+        setupSubmitButton();
+        // Reset manuel de previewImage
+        document.getElementById("previewImage").style.display = "none";
       } else {
         console.error("Erreur lors de la requête :", response);
       }
@@ -383,14 +403,7 @@ const submitWorkForm = async () => {
     }
   });
 };
-
-submitWorkForm();
-
-// Fonction pour afficher un message d'erreur
-const addError = (errorElement, message) => {
-  errorElement.classList.add("form-error");
-  modalErrorElement.innerHTML = `<p>${message}</p>`;
-};
+sendForm();
 
 // Réinitialise le formulaire
 const resetForm = () => {
@@ -399,8 +412,6 @@ const resetForm = () => {
   document.getElementById("categorie").value = "";
   document.getElementById("containerModal").style.display = "none";
 };
-
-// --------------------------------
 
 // Preview IMG
 document.addEventListener("DOMContentLoaded", () => {

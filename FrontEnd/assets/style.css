@@ -400,6 +400,12 @@ strong {
   text-decoration: underline;
 }
 
+#btn-connexion {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 0px 40px;
+}
+
 .error-msg {
   color: red;
   font-weight: bold;
@@ -424,8 +430,8 @@ strong {
 
 .fa-x {
   position: absolute;
-  top: 20px;
-  right: 25px;
+  top: 22px;
+  right: 32px;
   cursor: pointer;
 }
 
@@ -433,12 +439,12 @@ strong {
   border-top: 2px solid #b3b3b3;
   margin-top: 4em;
   z-index: 0;
-  width: 73%;
+  width: 66%;
 }
 
 .grey-bar {
   border-top: 2px solid #b3b3b3;
-  margin-top: 4em;
+  margin-top: 3em;
   z-index: 0;
   width: 100%;
 }
@@ -448,7 +454,8 @@ strong {
   font-size: 26px;
   font-family: "Work Sans";
   font-weight: 400;
-  margin: 1.5em;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
 }
 
 /* modalGalley */
@@ -460,13 +467,13 @@ strong {
   justify-content: space-around;
   background: white;
   height: 650px;
-  width: 40%;
+  width: 34%;
   position: relative;
   border-radius: 20px;
 }
 
 #modal-work {
-  width: 73%;
+  width: 65%;
   height: 70%;
   display: flex;
   justify-content: start;
@@ -505,7 +512,7 @@ strong {
 
 #modalGallery-btn {
   padding: 0 50px;
-  margin: 2em;
+  margin: 3em;
   cursor: pointer;
   font-size: 14px;
   background-color: #1d6154;
@@ -521,7 +528,7 @@ strong {
   justify-content: space-around;
   background: white;
   height: 650px;
-  width: 40%;
+  width: 34%;
   position: relative;
   border-radius: 20px;
 }
@@ -545,7 +552,7 @@ strong {
   justify-content: center;
   align-items: center;
   background: #e8f1f6;
-  width: 73%;
+  width: 100%;
   border-radius: 5px;
 }
 
@@ -629,7 +636,7 @@ strong {
 
 .fa-chevron-down {
   position: absolute;
-  bottom: 168px;
+  bottom: 152px;
   right: 35px;
   color: #6c6c6c;
   pointer-events: none;
@@ -637,8 +644,8 @@ strong {
 
 .modalNewWork-btn-disabled {
   background-color: #a7a7a7;
-  width: 43%;
-  height: 40px;
+  width: 45%;
+  height: 35px;
   font-size: 14px;
   margin: 2em auto;
   color: white;
@@ -652,7 +659,7 @@ strong {
 .modalNewWork-btn-activate {
   background-color: #1d6154;
   width: 45%;
-  height: 40px;
+  height: 35px;
   font-size: 14px;
   margin: 2em auto;
   color: white;
@@ -663,11 +670,3 @@ strong {
   border: 1px solid #1d6154;
   cursor: pointer;
 }
-
-/* #modalGallery-btn {
-  padding: 0 50px;
-  margin: 2em;
-  cursor: pointer;
-  font-size: 14px;
-  background-color: #1d6154;
-  color: white; */
