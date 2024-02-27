@@ -35,6 +35,7 @@ const getArrayAllCategories = () => {
   return getArrayFromLocalStorage("arrayAllCategories");
 };
 
+
 async function initialiseWork() {
   await fetchAndStoreData("works", "arrayAllWorks");
   insertWorkInHtml(getArrayAllWorks());
@@ -54,15 +55,22 @@ const insertWorkInHtml = async (array) => {
     .join("");
 };
 
-// Displays category buttons and adds "Tous" as the first option
 const DisplayBtnCategories = async () => {
-  const array = getArrayAllCategories().slice();
-  array.unshift({ id: 0, name: "Tous" });
+  const isLogged = "token" in localStorage ? true : false;
 
-  document.getElementById("filter").innerHTML = array
-    .map((e) => `<button class="button" id="${e.id}">${e.name}</button>`)
-    .join("");
+  if (!isLogged) {
+    const array = getArrayAllCategories();
+    array.unshift({ id: 0, name: "Tous" });
+
+    document.getElementById("filter").innerHTML = array
+      .map((e, index) => {
+        const buttonClass = index === 0 ? "button btn-selected" : "button";
+        return `<button class="${buttonClass}" id="${e.id}">${e.name}</button>`;
+      })
+      .join("");
+  }
 };
+
 
 // filters works based on buttons
 function filterWorks() {
@@ -85,8 +93,6 @@ function filterWorks() {
   });
 }
 filterWorks();
-
-// ---------- 2.2----------
 
 // --IF USER IS LOGGED :
 const ifLogged = () => {
@@ -173,8 +179,6 @@ const displayModal = () => {
 };
 displayModal();
 
-// ---------- 3.1 ----------
-
 // Inserts works into the HTML MODAL
 const insertWorkInHtmlModal = (array) => {
   const modalWorkElement = document.getElementById("modal-work");
@@ -194,8 +198,6 @@ const insertWorkInHtmlModal = (array) => {
   }
 };
 insertWorkInHtmlModal(getArrayAllWorks());
-
-// ---------- 3.2 ----------
 
 // Fonction pour supprimer un élément du localStorage
 const removeFromLocalStorageById = (key, id) => {
@@ -245,8 +247,6 @@ const setupDeleteButton = () => {
 };
 
 setupDeleteButton();
-
-// ---------- 3.3 ----------
 
 // Affiche les catégories de #catégorie
 const DisplayOptionsCategory = async () => {

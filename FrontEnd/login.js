@@ -20,7 +20,7 @@ const login = async () => {
     .getElementById("connexion-form")
     .addEventListener("submit", async (e) => {
       e.preventDefault();
-      const { value: useremail } = document.getElementById("email");
+      const { value: useremail } = email;
       const { value: userpwd } = document.getElementById("password");
       const msgErrorElement = document.getElementById("connexion-error");
 
