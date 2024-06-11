@@ -1,8 +1,4 @@
-# Portfolio-architecte-sophie-bluel
+Instructions de lancement
 
-Code du projet 6 d'intégrateur web.
-
-## Information pour le lancer le code
-
- - Lancer le backend depuis votre terminal en suivant les instruction du fichier ReadMe.
- - Si vous désirez afficher le code du backend et du frontend, faites le dans 2 instances de VSCode différentes pour éviter tout problème
+1) Lancez le serveur avec "npm start" dans le répertoire Backend.
+2) Ouvrez index.html en local.
